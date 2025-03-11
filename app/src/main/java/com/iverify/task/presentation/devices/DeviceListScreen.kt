@@ -17,42 +17,46 @@ fun DeviceListScreen(viewModel: DeviceListViewModel = hiltViewModel()) {
 
     var searchQuery by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { query ->
-                searchQuery = query
-                viewModel.searchDevices(query)
-            },
-            label = { Text("Search Devices") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        when (uiState) {
-            is DeviceListState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is DeviceListState.Success -> {
-                val devices = (uiState as DeviceListState.Success).devices
-                LazyColumn {
-                    items(devices) { device ->
-                        DeviceItem(device)
+    Scaffold { contentPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+                .padding(16.dp)
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { query ->
+                    searchQuery = query
+                    viewModel.searchDevices(query)
+                },
+                maxLines = 1,
+                label = { Text("Search Devices") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            when (uiState) {
+                is DeviceListState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
                 }
-            }
 
-            is DeviceListState.Error -> {
-                Text(
-                    text = "Error: ${(uiState as DeviceListState.Error).message}",
-                    color = MaterialTheme.colorScheme.error
-                )
+                is DeviceListState.Success -> {
+                    val devices = (uiState as DeviceListState.Success).devices
+                    LazyColumn {
+                        items(devices) { device ->
+                            DeviceItem(device)
+                        }
+                    }
+                }
+
+                is DeviceListState.Error -> {
+                    Text(
+                        text = "Error: ${(uiState as DeviceListState.Error).message}",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }

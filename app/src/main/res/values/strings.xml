@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">iVerifyTask</string>
+    <string name="error_no_internet">Ops! Seems like you\'re disconnected!</string>
 </resources>

@@ -8,6 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +30,10 @@ class DeviceListViewModel @Inject constructor(
             try {
                 allDevices = getDevicesUseCase(pageNumber, pageSize)
                 _uiState.value = DeviceListState.Success(allDevices)
+            } catch (e: SerializationException) {
+                _uiState.value = DeviceListState.Error("It's not you! something's wrong with our server.")
+            } catch (e: UnknownHostException) {
+                _uiState.value = DeviceListState.Error("Please check your internet connection")
             } catch (e: Exception) {
                 _uiState.value = DeviceListState.Error(e.message ?: "Unknown Error")
             }
@@ -47,7 +53,7 @@ class DeviceListViewModel @Inject constructor(
 
 
 sealed class DeviceListState {
-    object Loading : DeviceListState()
+    data object Loading : DeviceListState()
     data class Success(val devices: List<Device>) : DeviceListState()
     data class Error(val message: String) : DeviceListState()
 }

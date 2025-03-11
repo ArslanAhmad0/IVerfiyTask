@@ -1,6 +1,7 @@
 package com.iverify.task.data.di
 
 import android.content.Context
+import com.iverify.task.data.remote.CheckNetworkInterceptor
 import com.iverify.task.data.remote.TokenInterceptor
 import com.iverify.task.data.util.tokenmanager.TokenManager
 import com.iverify.task.data.util.tokenmanager.SecureTokenManager
@@ -28,10 +29,18 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(tokenInterceptor: TokenInterceptor): OkHttpClient =
-        OkHttpClient.Builder()
-            .addInterceptor(tokenInterceptor)
-            .build()
+    fun provideCheckNetworkInterceptor(@ApplicationContext context: Context) =
+        CheckNetworkInterceptor(context)
+
+    @Singleton
+    @Provides
+    fun provideOkHttpClient(
+        tokenInterceptor: TokenInterceptor,
+        checkNetworkInterceptor: CheckNetworkInterceptor
+    ) = OkHttpClient.Builder()
+        .addInterceptor(checkNetworkInterceptor)
+        .addInterceptor(tokenInterceptor)
+        .build()
 
     @OptIn(ExperimentalSerializationApi::class)
     @Singleton
