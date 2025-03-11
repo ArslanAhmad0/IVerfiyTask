@@ -17,6 +17,7 @@ class DeviceListViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<DeviceListState>(DeviceListState.Loading)
     val uiState: StateFlow<DeviceListState> = _uiState
+    private var allDevices: List<Device> = emptyList()
 
     init {
         fetchDevices()
@@ -25,8 +26,8 @@ class DeviceListViewModel @Inject constructor(
     private fun fetchDevices(pageNumber: Int = 1, pageSize: Int = 100) {
         viewModelScope.launch {
             try {
-                val devices = getDevicesUseCase(pageNumber, pageSize)
-                _uiState.value = DeviceListState.Success(devices)
+                allDevices = getDevicesUseCase(pageNumber, pageSize)
+                _uiState.value = DeviceListState.Success(allDevices)
             } catch (e: Exception) {
                 _uiState.value = DeviceListState.Error(e.message ?: "Unknown Error")
             }
@@ -36,7 +37,7 @@ class DeviceListViewModel @Inject constructor(
     fun searchDevices(query: String) {
         val currentState = _uiState.value
         if (currentState is DeviceListState.Success) {
-            val filtered = currentState.devices.filter {
+            val filtered = allDevices.filter {
                 it.name.contains(query, ignoreCase = true)
             }
             _uiState.value = DeviceListState.Success(filtered)
